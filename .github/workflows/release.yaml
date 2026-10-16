@@ -2,6 +2,7 @@ name: Test, format and publish to crates.io
 
 on:
   push:
+    branches: [master]
     tags: ["v*"]
   workflow_dispatch:
 
