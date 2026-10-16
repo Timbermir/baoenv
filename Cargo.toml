@@ -1,0 +1,35 @@
+[package]
+name = "baoenv"
+version = "0.0.1"
+edition = "2024"
+rust-version = "1.88"
+description = "Run commands with secrets from an OpenBao KV path, through Cloudflare Access"
+readme = "README.md"
+homepage = "https://github.com/Timbermir/baoenv"
+repository = "https://github.com/Timbermir/baoenv"
+license = "MIT"
+keywords = ["openbao", "secrets", "cli"]
+categories = ["command-line-utilities"]
+exclude = ["/rust-toolchain.toml"]
+
+[package.metadata.docs.rs]
+targets = ["x86_64-unknown-linux-gnu"]
+
+[dependencies]
+clap = { version = "4.6.7", features = ["derive", "env"] }
+dialoguer = { version = "0.12.0", default-features = false }
+dirs = { version = "7.0.0" }
+reqwest = { version = "0.13.5", default-features = false, features = ["blocking", "json", "rustls"] }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.154" }
+thiserror = { version = "2.0.21" }
+toml = { version = "1.1.8" }
+
+[dev-dependencies]
+dotenvy = "0.15.7"
+httpmock = { version = "0.8.3" }
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1

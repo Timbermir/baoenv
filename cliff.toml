@@ -1,0 +1,41 @@
+[changelog]
+body = """
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits %}
+- {{ commit.message | split(pat="\n") | first | trim }}\
+{% if commit.remote.pr_author or commit.remote.username %} by @{{ commit.remote.pr_author | default(value=commit.remote.username) }}{% endif %}\
+{% if commit.remote.pr_number %} in [#{{ commit.remote.pr_number }}]({{ self::remote_url() }}/pull/{{ commit.remote.pr_number }}){% endif %}
+{%- endfor %}
+{% endfor %}
+{%- if github.contributors | filter(attribute="is_first_time", value=true) | length != 0 %}
+### New contributors
+{% for contributor in github.contributors | filter(attribute="is_first_time", value=true) %}
+- @{{ contributor.username }} made their first contribution
+{%- endfor %}
+{% endif %}
+{%- if previous.version %}
+**Full changelog**: {{ self::remote_url() }}/compare/{{ previous.version }}...{{ version }}
+{% endif %}
+{%- macro remote_url() -%}
+  https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+{%- endmacro -%}
+"""
+trim = true
+postprocessors = [{ pattern = '(?m)^- \w+(\([^)]*\))?:?\s+', replace = "- " }]
+
+[git]
+conventional_commits = false
+filter_unconventional = false
+commit_parsers = [
+  { message = '^feat', group = "Added" },
+  { message = '^fix', group = "Fixed" },
+  { message = '^perf', group = "Performance" },
+  { message = '^(refactor|style)', group = "Changed" },
+  { message = '^docs', group = "Documentation" },
+  { message = '^(build|ci|chore|test)', skip = true },
+  { message = '.*', group = "Other" }
+]
+filter_commits = false
+sort_commits = "oldest"
+tag_pattern = "v[0-9].*"
