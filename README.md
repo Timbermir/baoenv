@@ -11,7 +11,7 @@
     <img src="https://img.shields.io/crates/v/baoenv.svg?style=flat-square" alt="crates.io version">
   </a>
   <a href="https://github.com/Timbermir/baoenv/actions/workflows/release.yaml">
-    <img src="https://img.shields.io/github/actions/workflow/status/Timbermir/baoenv/release.yaml?style=flat-square" alt="build status">
+    <img src="https://github.com/Timbermir/baoenv/actions/workflows/release.yaml/badge.svg" alt="build status">
   </a>
   <a href="https://crates.io/crates/baoenv">
     <img src="https://img.shields.io/crates/d/baoenv.svg?style=flat-square" alt="crates.io downloads">
