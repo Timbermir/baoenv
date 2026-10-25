@@ -4,7 +4,7 @@ use std::{
 };
 
 use clap::{Args, ValueEnum};
-use dialoguer::{Confirm, Input};
+use dialoguer::{Input, Select, theme::ColorfulTheme};
 
 use crate::{
     client::Client,
@@ -65,9 +65,7 @@ pub enum Format {
 }
 
 #[derive(Args)]
-#[command(
-    about = "Store the OpenBao address, whether it sits behind Cloudflare Access, the KV mount, your role and where to keep the token"
-)]
+#[command(about = "Store the OpenBao address, the login method, the KV mount and your role")]
 pub struct Setup;
 
 #[derive(Args)]
@@ -114,35 +112,37 @@ pub struct Run {
 impl Setup {
     pub fn execute(self, addr: Option<String>) -> BaoResult<ExitCode> {
         let mut config = Config::load()?;
-        let mut address = Input::new().with_prompt("OpenBao address");
+        let theme = ColorfulTheme::default();
+        let mut address = Input::<String>::with_theme(&theme).with_prompt("OpenBao address");
         if let Some(current) = addr.or_else(|| config.addr.clone()) {
             address = address.default(current);
         }
-        config.addr = Some(address.interact_text()?);
+        let address = address.interact_text()?;
+        let address = address.trim_end_matches('/');
+        config.addr = Some(if address.contains("://") {
+            address.to_string()
+        } else {
+            format!("https://{address}")
+        });
         config.access = Some(
-            Confirm::new()
-                .with_prompt("Behind Cloudflare Access")
-                .default(config.access.unwrap_or(true))
+            Select::with_theme(&theme)
+                .with_prompt("Login method")
+                .items(["Cloudflare Access", "BAO_TOKEN or AppRole"])
+                .default(if config.access.unwrap_or(true) { 0 } else { 1 })
                 .interact()?
+                == 0
         );
         config.mount = Some(
-            Input::new()
+            Input::with_theme(&theme)
                 .with_prompt("KV mount")
                 .default(config.mount.take().unwrap_or_else(|| "kv".to_string()))
                 .interact_text()?
         );
         config.role = Some(
-            Input::new()
+            Input::with_theme(&theme)
                 .with_prompt("OpenBao role")
                 .default(config.role.take().unwrap_or_else(|| "dev".to_string()))
                 .interact_text()?
-        );
-        config.credentials = Some(
-            Input::<String>::new()
-                .with_prompt("Keep the token at")
-                .default(config.credentials()?.to_string_lossy().into_owned())
-                .interact_text()?
-                .into()
         );
         config.save()?;
         Ok(ExitCode::SUCCESS)

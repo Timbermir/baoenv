@@ -33,7 +33,7 @@
 `baoenv` is what `doppler run` is for Doppler, for an [OpenBao](https://openbao.org) that may sit behind [Cloudflare Access](https://developers.cloudflare.com/cloudflare-one/). It reads one KV v2 path and either prints it or starts a program with it in the environment. Nothing is written to disk except the OpenBao token.
 
 ```sh
-baoenv setup                                    # address, Access yes/no, KV mount, role, token location
+baoenv setup                                    # address, login method, KV mount, role
 baoenv login                                    # exchanges the Cloudflare Access session for an OpenBao token
 baoenv token                                    # copies the token to the clipboard; prints it when piped
 baoenv run -- cargo test                        # path from the nearest baoenv.toml
@@ -64,7 +64,7 @@ Humans never hold an OpenBao password. Depending on what sits in front of OpenBa
 
 > [!NOTE]
 >
-> For a plain OpenBao answer `no` to the Access question in `baoenv setup`; the tool then never calls `cloudflared` and sends no Access headers. A `BAO_TOKEN` in the environment is always used as is.
+> For a plain OpenBao pick `BAO_TOKEN or AppRole` as the login method in `baoenv setup`; the tool then never calls `cloudflared` and sends no Access headers. A `BAO_TOKEN` in the environment is always used as is.
 
 For people, `baoenv login` sends the Access token to OpenBao's JWT auth method under the role chosen in `baoenv setup`. OpenBao validates it against the Access team's JWKS, so the only credential is the Cloudflare session.
 
