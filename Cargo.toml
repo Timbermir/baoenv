@@ -1,6 +1,6 @@
 [package]
 name = "baoenv"
-version = "0.0.1"
+version = "0.0.2"
 edition = "2024"
 rust-version = "1.88"
 description = "Run commands with secrets from an OpenBao KV path, through Cloudflare Access"
@@ -8,8 +8,8 @@ readme = "README.md"
 homepage = "https://github.com/Timbermir/baoenv"
 repository = "https://github.com/Timbermir/baoenv"
 license = "MIT"
-keywords = ["vault", "hashicorp", "openbao", "secrets", "cli"]
-categories = ["command-line-utilities"]
+keywords = ["openbao", "vault", "secrets", "dotenv", "cloudflare"]
+categories = ["command-line-utilities", "authentication", "config", "development-tools"]
 exclude = ["/rust-toolchain.toml"]
 
 [package.metadata.docs.rs]
