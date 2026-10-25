@@ -8,7 +8,7 @@ readme = "README.md"
 homepage = "https://github.com/Timbermir/baoenv"
 repository = "https://github.com/Timbermir/baoenv"
 license = "MIT"
-keywords = ["openbao", "secrets", "cli"]
+keywords = ["vault", "hashicorp", "openbao", "secrets", "cli"]
 categories = ["command-line-utilities"]
 exclude = ["/rust-toolchain.toml"]
 
