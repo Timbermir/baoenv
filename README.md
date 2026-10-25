@@ -59,7 +59,7 @@ Humans never hold an OpenBao password. Depending on what sits in front of OpenBa
 | Setup                             | Where the identity comes from                                                                 |
 |-----------------------------------|-----------------------------------------------------------------------------------------------|
 | Plain OpenBao                     | `BAO_TOKEN`, or `BAO_ROLE_ID` and `BAO_SECRET_ID` for an AppRole                              |
-| Behind Cloudflare Access, people  | `cloudflared access login <addr>` once, then `baoenv login` exchanges the Access token        |
+| Behind Cloudflare Access, people  | `baoenv login` exchanges the Access token, running `cloudflared access login` first when there is no session |
 | Behind Cloudflare Access, machines | `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` (service token) plus the AppRole pair    |
 
 > [!NOTE]

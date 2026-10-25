@@ -151,7 +151,9 @@ impl Setup {
 
 impl Login {
     pub fn execute(self, addr: Option<String>) -> BaoResult<ExitCode> {
-        Client::new(addr)?.login()?;
+        let client = Client::new(addr)?;
+        client.login()?;
+        println!("logged in as {}", client.whoami()?);
         Ok(ExitCode::SUCCESS)
     }
 }

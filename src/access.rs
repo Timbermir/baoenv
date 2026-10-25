@@ -1,4 +1,8 @@
-use std::{env, process::Command};
+use std::{
+    env,
+    io::{self, IsTerminal},
+    process::Command
+};
 
 use reqwest::header::{HeaderMap, HeaderValue};
 
@@ -45,13 +49,26 @@ impl Access {
 }
 
 fn token(addr: &str) -> BaoResult<String> {
+    if let Some(token) = stored(addr)? {
+        return Ok(token);
+    }
+    if !io::stderr().is_terminal()
+        || !Command::new("cloudflared")
+            .args(["access", "login", "--quiet", "--auto-close", addr])
+            .stdout(io::stderr())
+            .status()?
+            .success()
+    {
+        return Err(BaoError::NoAccessSession(addr.to_string()));
+    }
+    stored(addr)?.ok_or_else(|| BaoError::NoAccessSession(addr.to_string()))
+}
+
+fn stored(addr: &str) -> BaoResult<Option<String>> {
     let output = Command::new("cloudflared")
         .args(["access", "token", &format!("-app={addr}")])
         .output()
         .map_err(|_| BaoError::CloudflaredMissing(addr.to_string()))?;
     let token = String::from_utf8_lossy(&output.stdout).trim().to_string();
-    if !output.status.success() || token.is_empty() {
-        return Err(BaoError::NoAccessSession(addr.to_string()));
-    }
-    Ok(token)
+    Ok((output.status.success() && !token.is_empty()).then_some(token))
 }
