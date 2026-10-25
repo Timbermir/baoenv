@@ -35,6 +35,7 @@
 ```sh
 baoenv setup                                    # address, Access yes/no, KV mount, role, token location
 baoenv login                                    # exchanges the Cloudflare Access session for an OpenBao token
+baoenv token                                    # copies the token to the clipboard; prints it when piped
 baoenv run -- cargo test                        # path from the nearest baoenv.toml
 baoenv run -e polygon -s api -- cargo run       # path from flags
 baoenv env -e production -s api --format json   # shell (default), dotenv, powershell or json

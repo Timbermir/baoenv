@@ -1,4 +1,7 @@
-use std::process::{Command, ExitCode};
+use std::{
+    io::{self, IsTerminal, Write},
+    process::{Command, ExitCode, Stdio}
+};
 
 use clap::{Args, ValueEnum};
 use dialoguer::{Confirm, Input};
@@ -8,6 +11,16 @@ use crate::{
     config::{Config, Project},
     error::{BaoError, BaoResult}
 };
+
+#[cfg(all(unix, not(target_os = "macos")))]
+const CLIPBOARD: &[(&str, &[&str])] = &[
+    ("wl-copy", &["--sensitive"]),
+    ("xclip", &["-selection", "clipboard"])
+];
+#[cfg(target_os = "macos")]
+const CLIPBOARD: &[(&str, &[&str])] = &[("pbcopy", &[])];
+#[cfg(windows)]
+const CLIPBOARD: &[(&str, &[&str])] = &[("clip", &[])];
 
 #[derive(Args)]
 pub struct Target {
@@ -64,6 +77,10 @@ pub struct Login;
 #[derive(Args)]
 #[command(about = "Show the identity and policies behind the current token")]
 pub struct Whoami;
+
+#[derive(Args)]
+#[command(about = "Copy the OpenBao token to the clipboard, or print it when piped")]
+pub struct Token;
 
 #[derive(Args)]
 #[command(about = "Print the path's secrets")]
@@ -144,6 +161,35 @@ impl Whoami {
         let identity = Client::new(addr)?.whoami()?;
         println!("{identity}");
         Ok(ExitCode::SUCCESS)
+    }
+}
+
+impl Token {
+    pub fn execute(self, addr: Option<String>) -> BaoResult<ExitCode> {
+        let token = Client::new(addr)?.token()?;
+        if !io::stdout().is_terminal() {
+            println!("{token}");
+            return Ok(ExitCode::SUCCESS);
+        }
+        for (program, arguments) in CLIPBOARD {
+            let Ok(mut child) = Command::new(program)
+                .args(*arguments)
+                .stdin(Stdio::piped())
+                .stdout(Stdio::null())
+                .stderr(Stdio::null())
+                .spawn()
+            else {
+                continue;
+            };
+            if let Some(mut stdin) = child.stdin.take() {
+                let _ = stdin.write_all(token.as_bytes());
+            }
+            if child.wait()?.success() {
+                println!("Token copied to the clipboard");
+                return Ok(ExitCode::SUCCESS);
+            }
+        }
+        Err(BaoError::NoClipboard)
     }
 }
 

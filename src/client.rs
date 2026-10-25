@@ -140,7 +140,7 @@ impl Client {
         Ok(token)
     }
 
-    fn token(&self) -> BaoResult<String> {
+    pub fn token(&self) -> BaoResult<String> {
         if let Ok(token) = env::var("BAO_TOKEN") {
             return Ok(token);
         }

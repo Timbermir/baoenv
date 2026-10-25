@@ -22,6 +22,8 @@ pub enum BaoError {
     CloudflaredMissing(String),
     #[error("no Cloudflare Access session; run `cloudflared access login {0}`")]
     NoAccessSession(String),
+    #[error("no clipboard tool worked; install wl-clipboard or xclip, or pipe `baoenv token`")]
+    NoClipboard,
     #[error("OpenBao refused the login: {0}")]
     LoginRefused(reqwest::Error),
     #[error("reading {path}: {source}")]

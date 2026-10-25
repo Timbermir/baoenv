@@ -87,6 +87,9 @@ fn approle_login_reads_secrets_and_caches_the_token() {
         fs::read_to_string(sandbox.0.join("baoenv").join("credentials")).unwrap(),
         "t-1"
     );
+    let token = sandbox.baoenv(&server, &["token"]);
+    assert_eq!(String::from_utf8_lossy(&token.stdout), "t-1\n");
+    login.assert();
 }
 
 #[test]
